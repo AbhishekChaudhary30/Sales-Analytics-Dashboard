@@ -7,6 +7,7 @@ from src.ui.components import (
     render_section_heading,
     render_step_indicator,
 )
+from src.ui.filters import render_filter_sidebar
 from src.ui.layout import (
     inject_custom_css,
     render_app_footer,
@@ -27,6 +28,7 @@ __all__ = [
     "render_app_footer",
     "render_app_header",
     "render_empty_state",
+    "render_filter_sidebar",
     "render_metric_card",
     "render_quality_warnings_box",
     "render_section_heading",

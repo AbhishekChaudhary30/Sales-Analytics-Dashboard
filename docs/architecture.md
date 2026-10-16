@@ -11,32 +11,39 @@ The system strictly adheres to the **Separation of Concerns (SoC)** principle, i
 ```
 ┌────────────────────────────────────────────────────────┐
 │                   STREAMLIT WEB UI                     │
-│  (app.py, pages/1..6, src/ui/components & layout)      │
+│  (app.py, pages/1..6, src/ui/components, layout, filters│
 └──────────────────────────┬─────────────────────────────┘
                            │ Dispatches user interactions
                            ▼
 ┌────────────────────────────────────────────────────────┐
 │                 SESSION STATE ENGINE                   │
-│   (raw_dataset, dataset_profile, column_mapper, etc.)  │
+│   (raw_dataset, dataset_profile, canonical_dataset,    │
+│    active_filters, selected_currency, active_tab)      │
 └────────────┬─────────────────────────────┬─────────────┘
              │                             │
              ▼                             ▼
 ┌─────────────────────────┐   ┌──────────────────────────┐
 │   DATA PIPELINE LAYER   │   │     ANALYTICS ENGINE     │
-│   - Ingestion (loader)  │   │   - Metrics (revenue,    │
-│   - Validation (schema) │   │     margin, AOV)         │
-│   - Profiling (telemetry│   │   - Aggregations (time,  │
-│   - Column Alignment    │   │     category, territory) │
-│     (confidence scoring)│   │   - Insights generator   │
-└────────────┬────────────┘   └────────────┬─────────────┘
+│   - Ingestion (loader)  │   │   - Canonical Data Model │
+│   - Validation (schema) │   │   - Executive Metrics    │
+│   - Profiling (telemetry│   │   - Time-Series Engine   │
+│   - Column Alignment    │   │   - Products & Pareto    │
+│     (confidence scoring)│   │   - Geography/Territory  │
+│   - Canonical Model     │   │   - Customer Intelligence│
+│     (safe derivations)  │   │   - Profitability/Elastic│
+└────────────┬────────────┘   │   - Statistical Hub      │
+             │                │   - Dynamic Filter Engine│
+             │                │   - Evidence-Based Signals│
+             │                └────────────┬─────────────┘
              │                             │
              └──────────────┬──────────────┘
-                            │ Standardized DataFrame
+                            │ Filtered Canonical DataFrame
                             ▼
 ┌────────────────────────────────────────────────────────┐
 │              VISUALIZATION FACTORY LAYER               │
-│   (src/visualization/chart_factory.py, themes.py)      │
+│   (src/visualization/chart_factory.py, explorer.py)    │
 │   Plotly Dark Graphite + Electric Violet/Cyan Theme    │
+│   15+ chart types & Self-service Chart Explorer        │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -53,15 +60,24 @@ The system strictly adheres to the **Separation of Concerns (SoC)** principle, i
 | `src/data/validation.py` | Non-destructive structural auditing (duplicate column deduplication, empty checks, missing headers). |
 | `src/data/profiling.py` | Deep exploratory profiling (semantic type inference, missing cell percentages, cardinality, numeric quartiles, quality warnings). |
 | `src/data/column_mapping.py` | Confidence-based column mapper (exact alias, normalized alias, token match, fuzzy similarity, ambiguity detection). |
-| `src/analytics/metrics.py` | Foundational KPI calculation routines (Revenue, Orders, AOV, Profit, Margin %, Average Discount). |
-| `src/analytics/aggregations.py` | Time-series and dimensional grouping utilities. |
-| `src/analytics/insights.py` | Rule-based commercial signals and heuristic alert engine. |
+| `src/data/canonical.py` | Canonical analytical data model, schema validation, capability checks, and conservative revenue/profit derivations. |
+| `src/analytics/metrics.py` | Comprehensive Executive KPI calculation routines with full metadata, definitions, availability states, and edge-case protection. |
+| `src/analytics/time_series.py` | Multi-frequency time-series resampling (Daily, Weekly, Monthly, Quarterly, Yearly), moving averages, PoP growth, and YoY tables. |
+| `src/analytics/products.py` | Product rankings, Category performance rollups, and cumulative Pareto 80/20 concentration analysis. |
+| `src/analytics/geography.py` | Territorial rollups across 4 geographic dimensions (Region, Country, State, City). |
+| `src/analytics/customers.py` | Customer revenue ranking, concentration share (Top 5 / Top 10), and repeat vs. single-order retention metrics. |
+| `src/analytics/profitability.py` | Negative-profit line item audit and 4-tier discount band segmentation (`0%`, `1-10%`, `11-20%`, `>20%`). |
+| `src/analytics/statistics.py` | Descriptive statistical summary, Pearson/Spearman correlation matrices, and IQR outlier detection. |
+| `src/analytics/filters.py` | Pure analytical multi-dimensional filtering engine (dates, categories, regions, transaction types). |
+| `src/analytics/insights.py` | Deterministic, evidence-based commercial signals without external AI/LLM dependencies. |
 | `src/visualization/themes.py` | Plotly theme registration adhering to the Dark Graphite, Electric Violet, and Cyan aesthetic. |
-| `src/visualization/chart_factory.py` | Reusable, error-safe Plotly chart builders (Bar, Line, Area, Donut, Scatter, Box, Heatmap). |
+| `src/visualization/chart_factory.py` | Reusable, error-safe Plotly chart builders (15+ chart types: Line, Bar, Treemap, Waterfall, Funnel, 3D Scatter, etc.). |
+| `src/visualization/explorer.py` | Interactive self-service Chart Explorer for custom ad-hoc visual queries. |
 | `src/ui/layout.py` | CSS injection, branded header, live dataset telemetry banner, and footer. |
 | `src/ui/components.py` | Glassmorphic metric cards, section headers, empty state holders, and step progress indicators. |
+| `src/ui/filters.py` | Interactive sidebar dynamic filter control panel with live record counting. |
 | `src/ui/navigation.py` | Guarded Previous/Next step navigation controller with validation gating. |
-| `src/utils/formatting.py` | Formatting helpers for currency, percentages, file sizes, and normalized column strings. |
+| `src/utils/formatting.py` | Formatting helpers for currency (USD, INR with Lakhs/Crores, EUR, GBP, JPY), percentages, and strings. |
 | `src/utils/errors.py` | User-friendly error hierarchy concealing raw stack traces. |
 
 ---

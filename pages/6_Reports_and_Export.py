@@ -1,9 +1,11 @@
-"""Step 6: Reports & Export Foundation Page."""
+"""Step 6: Reports & Filtered Data Export Center."""
 
-import json
-
+import pandas as pd
 import streamlit as st
 
+from src.analytics.insights import generate_comprehensive_insights
+from src.analytics.metrics import compute_all_kpis
+from src.analytics.products import analyze_categories
 from src.ui.components import (
     render_empty_state,
     render_section_heading,
@@ -27,15 +29,15 @@ render_app_header(dataset_name=ds_name, row_count=ds_rows)
 render_step_indicator(current_step=6)
 
 render_section_heading(
-    title="Reports & Data Export",
-    subtitle="Export cleaned schemas, analytical summaries, and data profiles for downstream reporting.",
+    title="Reports & Analytical Data Export",
+    subtitle="Download filtered datasets, dimensional rollups, KPI summaries, and structured insights.",
     icon="📑",
 )
 
 if not has_active_dataset():
     render_empty_state(
         title="No Data Available for Export",
-        description="Please load or upload a sales dataset first.",
+        description="Please load or upload a sales dataset in Step 1 or 2 first.",
         icon="📂",
     )
     render_step_navigation(
@@ -47,102 +49,177 @@ if not has_active_dataset():
     render_app_footer()
     st.stop()
 
-# Retrieve dataset references
-std_df = st.session_state.get("standard_df")
-raw_df = active_ds.raw_df
-profile = st.session_state.get("dataset_profile")
+# Retrieve active filtered or standardized dataset
+filtered_df = st.session_state.get("filtered_df")
+standard_df = st.session_state.get("standard_df")
+target_df = filtered_df if filtered_df is not None else (standard_df if standard_df is not None else active_ds.raw_df)
 
-export_target_df = std_df if std_df is not None else raw_df
+if target_df.empty:
+    st.warning("⚠️ The current filter selection contains 0 rows. Download options are disabled.")
+    render_step_navigation(current_step=6, prev_page="pages/5_Analysis_Workspace.py", next_page="pages/1_Overview.py")
+    render_app_footer()
+    st.stop()
 
-st.markdown("#### Available Data Exports")
+st.markdown(
+    f"""
+    <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.25);
+                border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+        <span class="badge-pill badge-info">Active Filter Scope</span>
+        <div style="font-size: 0.95rem; font-weight: 600; color: #F9FAFB; margin-top: 4px;">
+            Exporting {len(target_df):,} transaction records (Filtered working copy)
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-c1, c2, c3 = st.columns(3)
+st.markdown("#### Available Commercial Exports")
+
+c1, c2 = st.columns(2)
 
 with c1:
+    # 1. Standardized Filtered CSV
     st.markdown(
         """
-        <div class="metric-card" style="border-left: 4px solid #8B5CF6;">
+        <div class="metric-card" style="border-left: 4px solid #8B5CF6; min-height: 180px;">
             <div class="metric-header">
                 <span class="metric-label">Processed Dataset</span>
                 <span class="metric-icon">📥</span>
             </div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.5rem;">
-                Standardized CSV
+            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">
+                Filtered Transactions CSV
             </div>
             <p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
-                Export cleansed transactions aligned with internal business fields and normalized numbers.
+                Full line-item transaction dataset reflecting active date, category, and regional filters.
             </p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    csv_buffer = export_target_df.to_csv(index=False).encode("utf-8")
+    csv_bytes = target_df.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="Download Standardized CSV",
-        data=csv_buffer,
-        file_name="standardized_sales_data.csv",
+        label="Download Filtered CSV",
+        data=csv_bytes,
+        file_name="filtered_sales_transactions.csv",
         mime="text/csv",
         use_container_width=True,
         type="primary",
     )
 
 with c2:
+    # 2. Executive KPI Summary CSV
     st.markdown(
         """
-        <div class="metric-card" style="border-left: 4px solid #06B6D4;">
+        <div class="metric-card" style="border-left: 4px solid #06B6D4; min-height: 180px;">
             <div class="metric-header">
-                <span class="metric-label">Audit Report</span>
-                <span class="metric-icon">🔍</span>
+                <span class="metric-label">Executive Metrics</span>
+                <span class="metric-icon">📊</span>
             </div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.5rem;">
-                Data Profile Telemetry
+            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">
+                Executive KPI Summary Table
             </div>
             <p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
-                Download structural audit metrics, column distributions, and missing cell statistics as JSON.
+                Consolidated table of high-level financial indicators, unit sales, margins, and definitions.
             </p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    profile_dict = {
-        "dataset_name": active_ds.file_name,
-        "total_rows": profile.total_rows if profile else len(raw_df),
-        "total_columns": profile.total_cols if profile else len(raw_df.columns),
-        "duplicate_rows": profile.duplicate_rows_count if profile else 0,
-        "quality_warnings": profile.quality_warnings if profile else [],
-    }
-    json_bytes = json.dumps(profile_dict, indent=2).encode("utf-8")
+    kpis = compute_all_kpis(target_df)
+    kpi_records = [
+        {
+            "Indicator": m.display_name,
+            "Value": m.formatted_value,
+            "Numerical Value": m.value,
+            "Availability": "Available" if m.is_available else "Unavailable",
+            "Definition": m.definition,
+        }
+        for m in kpis.kpi_dict.values()
+    ]
+    kpi_df = pd.DataFrame(kpi_records)
+    kpi_csv_bytes = kpi_df.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="Download Profile JSON",
-        data=json_bytes,
-        file_name="data_profile_summary.json",
-        mime="application/json",
+        label="Download KPI Summary CSV",
+        data=kpi_csv_bytes,
+        file_name="executive_kpi_summary.csv",
+        mime="text/csv",
         use_container_width=True,
     )
 
+st.markdown("<br>", unsafe_allow_html=True)
+c3, c4 = st.columns(2)
+
 with c3:
+    # 3. Category Rollup Summary
     st.markdown(
         """
-        <div class="metric-card" style="border-left: 4px solid #10B981;">
+        <div class="metric-card" style="border-left: 4px solid #10B981; min-height: 180px;">
             <div class="metric-header">
-                <span class="metric-label">Executive Briefing</span>
-                <span class="metric-icon">📊</span>
+                <span class="metric-label">Assortment Rollup</span>
+                <span class="metric-icon">📦</span>
             </div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.5rem;">
-                Analytical PDF Brief
+            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">
+                Category Performance Summary
             </div>
             <p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
-                Structured multi-page PDF briefing with executive summary, KPIs, and chart figures.
+                Aggregated category revenues, net margins, revenue shares, and total unit counts.
             </p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-    st.button(
-        "Generate Executive PDF (Phase 2)",
-        key="btn_pdf_phase2",
-        disabled=True,
-        help="Full PDF generation engine will be implemented in Master Prompt 2 & 3.",
+    if "category" in target_df.columns:
+        cat_summary_df = analyze_categories(target_df)
+        cat_csv = cat_summary_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="Download Category Summary CSV",
+            data=cat_csv,
+            file_name="category_performance_summary.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+    else:
+        st.info("Category field unmapped.")
+
+with c4:
+    # 4. Automated Insights Briefing (Markdown Report)
+    st.markdown(
+        """
+        <div class="metric-card" style="border-left: 4px solid #F59E0B; min-height: 180px;">
+            <div class="metric-header">
+                <span class="metric-label">Intelligence Brief</span>
+                <span class="metric-icon">💡</span>
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">
+                Automated Insights Executive Brief
+            </div>
+            <p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
+                Structured markdown briefing documenting all quantified commercial observations and recommendations.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    insights = generate_comprehensive_insights(target_df)
+    report_lines = [
+        "# Sales Analytics Dashboard - Executive Intelligence Brief\n",
+        f"**Active Records Analyzed**: {len(target_df):,}\n",
+        "## Key Automated Business Findings\n",
+    ]
+    for ins in insights:
+        report_lines.append(f"### {ins.icon} {ins.title}")
+        report_lines.append(f"- **Finding**: {ins.description}")
+        report_lines.append(f"- **Observed Value**: {ins.observed_value}")
+        if ins.recommendation:
+            report_lines.append(f"- **Strategic Recommendation**: {ins.recommendation}")
+        report_lines.append("")
+
+    report_text = "\n".join(report_lines)
+    st.download_button(
+        label="Download Insights Brief (Markdown)",
+        data=report_text.encode("utf-8"),
+        file_name="sales_executive_insights_brief.md",
+        mime="text/markdown",
         use_container_width=True,
     )
 

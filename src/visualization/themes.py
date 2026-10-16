@@ -45,14 +45,14 @@ def get_dashboard_plotly_template() -> go.layout.Template:
             gridcolor="rgba(255, 255, 255, 0.06)",
             linecolor="rgba(255, 255, 255, 0.15)",
             tickfont=dict(color=UIThemeConfig.TEXT_MUTED),
-            titlefont=dict(color=UIThemeConfig.TEXT_SECONDARY),
+            title=dict(font=dict(color=UIThemeConfig.TEXT_SECONDARY)),
             zerolinecolor="rgba(255, 255, 255, 0.1)",
         ),
         yaxis=dict(
             gridcolor="rgba(255, 255, 255, 0.06)",
             linecolor="rgba(255, 255, 255, 0.15)",
             tickfont=dict(color=UIThemeConfig.TEXT_MUTED),
-            titlefont=dict(color=UIThemeConfig.TEXT_SECONDARY),
+            title=dict(font=dict(color=UIThemeConfig.TEXT_SECONDARY)),
             zerolinecolor="rgba(255, 255, 255, 0.1)",
         ),
         legend=dict(

@@ -52,17 +52,76 @@ def clean_numeric_series(series: pd.Series) -> pd.Series:
     return numeric
 
 
-def format_currency(val: float | None, symbol: str = "$") -> str:
-    """Format numeric values as clean currency strings."""
+CURRENCY_MAP = {
+    "USD": "$",
+    "INR": "₹",
+    "EUR": "€",
+    "GBP": "£",
+    "JPY": "¥",
+    "CAD": "C$",
+    "AUD": "A$",
+}
+
+
+def format_indian_currency(val_float: float, symbol: str = "₹") -> str:
+    """Format numeric values using the Indian numbering system (Lakhs and Crores)."""
+    is_neg = val_float < 0
+    abs_val = abs(val_float)
+
+    if abs_val >= 10_000_000:
+        return f"{'-' if is_neg else ''}{symbol}{abs_val / 10_000_000:.2f} Cr"
+    if abs_val >= 100_000:
+        return f"{'-' if is_neg else ''}{symbol}{abs_val / 100_000:.2f} L"
+
+    # Indian comma grouping: 12,34,567.89
+    s = f"{abs_val:.2f}"
+    parts = s.split(".")
+    integer_part = parts[0]
+    decimal_part = parts[1]
+
+    if len(integer_part) > 3:
+        last3 = integer_part[-3:]
+        rest = integer_part[:-3]
+        # Group remaining digits in pairs from right to left
+        grouped_pairs = []
+        while len(rest) > 2:
+            grouped_pairs.insert(0, rest[-2:])
+            rest = rest[:-2]
+        if rest:
+            grouped_pairs.insert(0, rest)
+        formatted_int = ",".join(grouped_pairs) + "," + last3
+    else:
+        formatted_int = integer_part
+
+    return f"{'-' if is_neg else ''}{symbol}{formatted_int}.{decimal_part}"
+
+
+def format_currency(
+    val: float | None,
+    currency_or_symbol: str = "USD",
+    use_indian_format: bool = False,
+) -> str:
+    """Format numeric values as clean currency strings supporting international and Indian formats."""
     if val is None or pd.isna(val):
         return "—"
     try:
         val_float = float(val)
-        if abs(val_float) >= 1_000_000:
-            return f"{symbol}{val_float / 1_000_000:,.2f}M"
-        if abs(val_float) >= 1_000:
-            return f"{symbol}{val_float:,.2f}"
-        return f"{symbol}{val_float:.2f}"
+        symbol = CURRENCY_MAP.get(currency_or_symbol.upper(), currency_or_symbol)
+
+        if use_indian_format or currency_or_symbol.upper() == "INR":
+            return format_indian_currency(val_float, symbol)
+
+        is_neg = val_float < 0
+        abs_val = abs(val_float)
+        prefix = f"-{symbol}" if is_neg else symbol
+
+        if abs_val >= 1_000_000_000:
+            return f"{prefix}{abs_val / 1_000_000_000:,.2f}B"
+        if abs_val >= 1_000_000:
+            return f"{prefix}{abs_val / 1_000_000:,.2f}M"
+        if abs_val >= 1_000:
+            return f"{prefix}{abs_val:,.2f}"
+        return f"{prefix}{abs_val:.2f}"
     except (ValueError, TypeError):
         return "—"
 
