@@ -9,6 +9,7 @@ from src.visualization.chart_factory import (
     create_bar_chart,
     create_box_plot,
     create_donut_chart,
+    create_heatmap,
     create_horizontal_bar_chart,
     create_line_chart,
     create_scatter_chart,
@@ -34,6 +35,7 @@ def render_chart_explorer(df: pd.DataFrame) -> None:
         "Scatter / Bubble Plot",
         "Box Plot",
         "Treemap",
+        "Heatmap",
         "3D Scatter Plot",
     ]
 
@@ -132,6 +134,19 @@ def render_chart_explorer(df: pd.DataFrame) -> None:
             if not path_candidates:
                 path_candidates = [x_col]
             fig = create_treemap(df, path=path_candidates, values=y_col, title=f"{y_col.title()} Hierarchical Treemap")
+
+        elif selected_chart == "Heatmap":
+            if not color_col:
+                st.info("💡 To construct a 2D Heatmap, please select a secondary 'Color / Group Dimension' in the dropdown above to serve as the vertical axis.")
+                return
+            fig = create_heatmap(
+                df,
+                x=x_col,
+                y=color_col,
+                values=y_col,
+                aggfunc=agg_fn,
+                title=f"{y_col.title()} Heatmap across {x_col.title()} & {color_col.title()} ({agg_method})",
+            )
 
         elif selected_chart == "3D Scatter Plot":
             if len(numeric_cols) < 3:

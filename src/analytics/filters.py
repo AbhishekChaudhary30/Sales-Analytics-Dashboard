@@ -130,3 +130,7 @@ def apply_filters(df: pd.DataFrame, filters: FilterState) -> FilterResult:
         active_filters=active_summary,
         is_empty=(rem == 0),
     )
+
+
+# Convenient alias for semantic readability
+apply_analytical_filters = apply_filters

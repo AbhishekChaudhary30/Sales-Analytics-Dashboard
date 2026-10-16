@@ -178,3 +178,7 @@ def calculate_year_over_year(
 
     pivot = pivot.sort_values(by="month")
     return pivot
+
+
+# Convenient alias for semantic readability
+compare_time_periods = compare_periods

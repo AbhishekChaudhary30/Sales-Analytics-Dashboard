@@ -339,6 +339,111 @@ def create_correlation_heatmap(corr_df: pd.DataFrame, title: str = "Metric Corre
     return apply_theme_to_figure(fig)
 
 
+def create_heatmap(
+    df: pd.DataFrame,
+    x: Optional[str] = None,
+    y: Optional[str] = None,
+    values: Optional[str] = None,
+    aggfunc: str = "sum",
+    title: str = "Heatmap",
+    colorscale: Optional[List] = None,
+) -> go.Figure:
+    """Create an interactive heatmap matrix from tabular dimensions or a 2D numeric matrix.
+
+    Supports two invocation modes:
+    1. Bivariate Dimensional: df with x (categorical/dimension), y (categorical/dimension),
+       and values (numeric measure) aggregated via aggfunc ('sum', 'mean', 'count', etc.).
+    2. Matrix / Pivot DataFrame: df is already a 2D numeric cross-tabulation or correlation matrix.
+    """
+    if df.empty:
+        return create_empty_state_figure(f"Data not available for {title or 'Heatmap'}")
+
+    default_colorscale = [
+        [0.0, UIThemeConfig.BG_CARD],
+        [0.5, UIThemeConfig.PRIMARY_VIOLET],
+        [1.0, UIThemeConfig.SECONDARY_CYAN],
+    ]
+    active_colorscale = colorscale or default_colorscale
+
+    # Mode 1: Tabular DataFrame with x, y (and optional values)
+    if x is not None and y is not None:
+        if x not in df.columns or y not in df.columns:
+            missing_cols = [c for c in [x, y] if c not in df.columns]
+            return create_empty_state_figure(f"Required column(s) {missing_cols} not found for Heatmap")
+
+        valid_df = df.dropna(subset=[x, y]).copy()
+        if valid_df.empty:
+            return create_empty_state_figure("No valid records available for Heatmap dimensions")
+
+        val_col = values
+        if val_col is None:
+            candidate_num = [c for c in df.columns if c not in (x, y) and pd.api.types.is_numeric_dtype(df[c])]
+            if candidate_num:
+                val_col = candidate_num[0]
+            else:
+                aggfunc = "count"
+                val_col = x
+
+        if val_col not in df.columns:
+            return create_empty_state_figure(f"Measure column '{val_col}' not found for Heatmap")
+
+        if aggfunc != "count":
+            valid_df[val_col] = pd.to_numeric(valid_df[val_col], errors="coerce")
+            valid_df = valid_df.dropna(subset=[val_col])
+
+        if valid_df.empty:
+            return create_empty_state_figure("Insufficient numeric data to populate Heatmap cells")
+
+        try:
+            pivot_df = valid_df.pivot_table(
+                index=y,
+                columns=x,
+                values=val_col,
+                aggfunc=aggfunc,
+                fill_value=0,
+            )
+        except Exception as e:
+            return create_empty_state_figure(f"Could not compute Heatmap matrix: {e}")
+
+    # Mode 2: Pre-aggregated 2D matrix / pivot table directly
+    else:
+        numeric_df = df.select_dtypes(include=[np.number])
+        if numeric_df.empty:
+            return create_empty_state_figure("No numeric values found in matrix for Heatmap")
+        pivot_df = numeric_df
+
+    if pivot_df.empty or pivot_df.shape[0] == 0 or pivot_df.shape[1] == 0:
+        return create_empty_state_figure("Heatmap dimensions resulted in an empty matrix")
+
+    z_vals = pivot_df.values
+    x_labels = [str(c) for c in pivot_df.columns]
+    y_labels = [str(r) for r in pivot_df.index]
+
+    show_text = bool(pivot_df.shape[0] <= 25 and pivot_df.shape[1] <= 25)
+    text_template = "%{z:,.1f}" if show_text else None
+
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=z_vals,
+            x=x_labels,
+            y=y_labels,
+            colorscale=active_colorscale,
+            text=np.round(z_vals, 2) if show_text else None,
+            texttemplate=text_template,
+            textfont=dict(size=10, color="white"),
+            hovertemplate="%{y} × %{x}<br>Value: %{z:,.2f}<extra></extra>",
+            hoverongaps=False,
+        )
+    )
+    fig.update_layout(
+        title=title,
+        xaxis_title=x.title() if x else "",
+        yaxis_title=y.title() if y else "",
+        xaxis=dict(tickangle=-45 if len(x_labels) > 6 else 0),
+    )
+    return apply_theme_to_figure(fig)
+
+
 def create_histogram(
     df: pd.DataFrame,
     x: str,
