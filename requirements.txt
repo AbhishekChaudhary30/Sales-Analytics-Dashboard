@@ -1,0 +1,15 @@
+# Core Application & Web Framework
+streamlit>=1.36.0,<=1.49.1
+
+# Data Ingestion & Analytics
+pandas>=2.0.0,<=2.3.2
+numpy>=1.24.0,<=2.3.3
+openpyxl>=3.1.2,<=3.1.5
+scipy>=1.11.0,<=1.16.2
+
+# Visualizations
+plotly>=5.18.0,<=6.3.0
+
+# Testing & Code Quality
+pytest>=8.0.0,<=8.4.2
+ruff>=0.4.0,<=0.16.2
