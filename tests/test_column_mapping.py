@@ -71,3 +71,23 @@ def test_create_standard_dataframe(synthetic_sales_df):
     assert pd.api.types.is_numeric_dtype(std_df["sales"])
     assert pd.api.types.is_datetime64_any_dtype(std_df["order_date"])
     assert len(std_df) == len(synthetic_sales_df)
+
+
+def test_no_false_positive_payment_method_on_superstore():
+    """Verify standard Superstore schema without Payment Method does not false-match payment_method."""
+    standard_superstore_cols = [
+        "Order ID", "Order Date", "Ship Date", "Ship Mode", "Customer ID",
+        "Customer Name", "Segment", "Country", "City", "State", "Postal Code",
+        "Region", "Product ID", "Category", "Sub-Category", "Product Name",
+        "Sales", "Quantity", "Discount", "Profit"
+    ]
+    mapper = ColumnMapper(standard_superstore_cols)
+
+    # payment_method must remain None (unmapped)
+    assert mapper.current_mappings.get("payment_method") is None
+    # shipping_mode must correctly map to Ship Mode
+    assert mapper.current_mappings.get("shipping_mode") == "Ship Mode"
+    # Unrelated dimensions must not be falsely mapped to payment_method
+    assert "Segment" not in [v for k, v in mapper.current_mappings.items() if k == "payment_method"]
+    assert "Postal Code" not in [v for k, v in mapper.current_mappings.items() if k == "payment_method"]
+

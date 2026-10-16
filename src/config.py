@@ -236,8 +236,8 @@ STANDARD_BUSINESS_FIELDS: dict[str, BusinessField] = {
         is_essential=True,
         aliases=[
             "sales", "revenue", "sales_amount", "sale_amount", "total_sales",
-            "total_revenue", "amount", "net_sales", "turnover", "gross_sales",
-            "line_total", "total_amount", "order_value", "total"
+            "total_revenue", "net_sales", "turnover", "gross_sales",
+            "line_total", "total_amount", "order_value"
         ],
     ),
     "cost": BusinessField(
@@ -249,7 +249,7 @@ STANDARD_BUSINESS_FIELDS: dict[str, BusinessField] = {
         is_essential=False,
         aliases=[
             "cost", "cogs", "cost_of_goods_sold", "total_cost",
-            "unit_cost", "purchase_cost", "expense", "manufacturing_cost"
+            "unit_cost", "purchase_cost", "product_cost", "manufacturing_cost"
         ],
     ),
     "profit": BusinessField(
@@ -261,7 +261,7 @@ STANDARD_BUSINESS_FIELDS: dict[str, BusinessField] = {
         is_essential=False,
         aliases=[
             "profit", "net_profit", "profit_amount", "gross_profit",
-            "margin", "earnings", "income", "net_income"
+            "earnings", "net_income", "profit_loss"
         ],
     ),
     "discount": BusinessField(
@@ -284,7 +284,7 @@ STANDARD_BUSINESS_FIELDS: dict[str, BusinessField] = {
         description="Sales territory, region, or continental market.",
         is_essential=False,
         aliases=[
-            "region", "territory", "sales_region", "zone", "area", "market"
+            "region", "territory", "sales_region", "sales_territory", "geographic_region"
         ],
     ),
     "country": BusinessField(
@@ -343,7 +343,7 @@ STANDARD_BUSINESS_FIELDS: dict[str, BusinessField] = {
         is_essential=False,
         aliases=[
             "payment_method", "payment_type", "payment_mode",
-            "payment", "tender_type", "pay_method"
+            "pay_method", "tender_type", "payment_channel"
         ],
     ),
     "shipping_mode": BusinessField(

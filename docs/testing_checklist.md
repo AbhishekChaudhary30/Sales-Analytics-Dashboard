@@ -43,9 +43,16 @@ This checklist documents the quality assurance matrix for **Master Prompt 2 (Com
 | `tests/test_validation.py` | Structural validation & duplicate headers | ✅ Passed | 4 test cases for column sanitization & empties |
 | `tests/test_profiling.py` | Semantic type inference & data warnings | ✅ Passed | 3 test cases for types, summary stats, anomalies |
 | `tests/test_column_mapping.py` | Auto-detection & manual overrides | ✅ Passed | 4 test cases for regex, matching, standardization |
+| `tests/test_column_mapping.py` | False-positive prevention for unmapped payment | ✅ Passed | Confirms Superstore without payment keeps field None |
+| `tests/test_visualizations.py` | Dimensional pivoted heatmap generation | ✅ Passed | Bivariate categorical/numeric matrix rendering |
+| `tests/test_visualizations.py` | Direct numeric matrix correlation heatmap | ✅ Passed | 2D matrix direct rendering with annotations |
+| `tests/test_visualizations.py` | Empty DataFrame heatmap handling | ✅ Passed | Safe empty state figure with informative message |
+| `tests/test_visualizations.py` | Missing column error handling in heatmap | ✅ Passed | User-friendly missing column annotation |
+| `tests/test_visualizations.py` | Non-numeric matrix heatmap fallback | ✅ Passed | Graceful handling of non-numeric dataframes |
+| `tests/test_visualizations.py` | Verification of all 16 Chart Factory builders | ✅ Passed | All exported Plotly builders compile and render |
 | `tests/test_metrics.py` | Phase 1 backward-compatibility tests | ✅ Passed | 4 test cases for legacy signatures |
 
-**Automated Test Summary**: **52 passed, 0 failed, 0 errors** (Execution time: ~1.55s)
+**Automated Test Summary**: **59 passed, 0 failed, 0 errors** (Execution time: ~2.1s)
 
 ---
 

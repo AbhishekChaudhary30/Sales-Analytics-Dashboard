@@ -68,10 +68,11 @@ def score_column_match(raw_col: str, b_field: BusinessField) -> tuple[float, str
         return 0.95, "normalized_key"
 
     # Token overlap check (e.g. 'order_date_utc' contains 'order_date')
+    # Require at least 2 tokens in alias to prevent single generic words from false-matching
     raw_tokens = set(raw_norm.split("_"))
     for alias in clean_aliases:
         alias_tokens = set(alias.split("_"))
-        if alias_tokens.issubset(raw_tokens):
+        if len(alias_tokens) >= 2 and alias_tokens.issubset(raw_tokens):
             return 0.85, "token_match"
 
     # Fuzzy similarity check against highest-ranking alias
