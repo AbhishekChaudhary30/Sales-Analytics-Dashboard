@@ -1,12 +1,14 @@
+# ==============================================================================
+# Git Ignore Configuration - Sales Analytics Dashboard
+# ==============================================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
 
-# Distribution / packaging
+# C extensions & build distribution
 .Python
 build/
 develop-eggs/
@@ -31,36 +33,55 @@ env/
 ENV/
 env.bak/
 venv.bak/
+.conda/
 
-# Streamlit local credentials & secrets
+# Streamlit secrets & local credentials
 .streamlit/secrets.toml
+.streamlit/credentials.toml
 
-# Testing & Linting
+# Environment variables, credentials & private keys
+.env
+.env.*
+*.pem
+*.key
+*.cert
+*.pfx
+id_rsa
+id_ed25519
+
+# Testing, coverage & linting caches
 .pytest_cache/
 .ruff_cache/
 .coverage
 htmlcov/
+.tox/
 
 # IDE & Editor settings
 .idea/
 .vscode/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
-# OS files
+# Operating system artifacts
 Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 .DS_Store
 
-# Temporary uploads & exports
+# Temporary runtime uploads, logs & exports
 data/uploads/
 temp/
+exports/
 *.tmp
 *.log
 
-# Sensitive environment variables
-.env
-.env.*
+# Explicit whitelisting of sample data, assets, and config
+!data/samples/
+!data/samples/*
+!assets/
+!assets/*
+!.streamlit/config.toml
 !README.md

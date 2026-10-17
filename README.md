@@ -67,7 +67,7 @@ This project has been fully developed, audited, tested, and hardened across thre
   - **Mapping Hardening**: Multi-token constraint enforcement on alias matching eliminating false positives (e.g. `payment_method` on standard Superstore schemas).
   - **Interactive 2D Heatmap Explorer**: Integrated dimensional heatmap slicing into the self-service Chart Explorer.
   - **Export Synchronization**: Synchronized session-state filter scoping with Step 6 CSV and Markdown report generators.
-  - **Comprehensive Quality Assurance**: 59 automated unit, integration, and regression tests (**59 passed, 0 failures, 0 errors**; `ruff check .` with 0 warnings).
+  - **Comprehensive Quality Assurance**: 65 automated unit, integration, and regression tests (**65 passed, 0 failures, 0 errors**; `ruff check .` with 0 warnings).
   - **Streamlit Community Cloud Deployment Ready**: Verified `app.py` entrypoint, portable `.streamlit/config.toml`, clean `requirements.txt`, and zero secrets.
 
 ---
@@ -78,10 +78,11 @@ This project has been fully developed, audited, tested, and hardened across thre
 sales-analytics-dashboard/
 │
 ├── app.py                      # Main entrypoint and navigation router
-├── requirements.txt            # Pinned production dependencies
+├── requirements.txt            # Production runtime dependencies (Streamlit Cloud)
+├── requirements-dev.txt        # Development, testing & linting dependencies
 ├── pyproject.toml              # Ruff and Pytest configuration
 ├── README.md                   # Complete project documentation
-├── .gitignore                  # Git tracking rules
+├── .gitignore                  # Git tracking & security rules
 │
 ├── .streamlit/
 │   └── config.toml             # Streamlit dark theme & server settings
@@ -165,6 +166,7 @@ sales-analytics-dashboard/
 │   ├── test_filters.py         # Multi-dimensional filter tests
 │   ├── test_insights.py        # Evidence-based automated insight tests
 │   ├── test_visualizations.py  # Chart factory, heatmap, and Plotly tests
+│   ├── test_html_rendering.py  # Clean UI rendering & AppTest regression tests
 │   └── test_metrics.py         # Phase 1 backward-compatibility tests
 │
 ├── docs/
@@ -183,19 +185,21 @@ sales-analytics-dashboard/
 ## ⚡ Quick Start & Local Execution
 
 ### 1. Prerequisites
-- Python 3.11, 3.12, or 3.13 installed.
-- Git installed.
+- **Python**: 3.11, 3.12, or 3.13 installed (`python --version`).
+- **Git**: Installed (`git --version`).
 
 ### 2. Clone or Enter Project
 ```bash
+git clone https://github.com/<your-username>/sales-analytics-dashboard.git
 cd sales-analytics-dashboard
 ```
 
-### 3. (Optional) Create Virtual Environment
+### 3. Create & Activate Virtual Environment
 ```bash
+# Create virtual environment
 python -m venv venv
 
-# Windows
+# Windows (PowerShell / Command Prompt)
 .\venv\Scripts\activate
 
 # macOS / Linux
@@ -204,10 +208,14 @@ source venv/bin/activate
 
 ### 4. Install Dependencies
 ```bash
+# To run the application:
 pip install -r requirements.txt
+
+# Or for running tests and linter as well:
+pip install -r requirements-dev.txt
 ```
 
-### 5. Launch Application
+### 5. Launch the Application
 ```bash
 streamlit run app.py
 ```
@@ -215,14 +223,56 @@ Open your browser at `http://localhost:8501`.
 
 ---
 
+## 🚀 Free Deployment on Streamlit Community Cloud
+
+The application is pre-configured for free, 1-click deployment on **Streamlit Community Cloud**.
+
+### Deployment Walkthrough:
+
+1. **Push your code to GitHub**:
+   Ensure all files are committed and pushed to your GitHub repository (e.g., `main` or `master` branch):
+   ```bash
+   git add .
+   git commit -m "feat: prepare repository for Streamlit Community Cloud deployment"
+   git push origin master
+   ```
+
+2. **Sign in to Streamlit Community Cloud**:
+   - Navigate to [share.streamlit.io](https://share.streamlit.io/).
+   - Sign in using your GitHub account.
+
+3. **Deploy the App**:
+   - Click **"New app"** (or **"Create app"**).
+   - In the deployment modal, select:
+     - **Repository**: `<your-github-username>/sales-analytics-dashboard`
+     - **Branch**: `master` (or `main`)
+     - **Main file path**: `app.py`
+     - **App URL**: Choose your preferred subdomain (e.g. `your-sales-analytics.streamlit.app`).
+
+4. **Verify Advanced Settings**:
+   - Click **"Advanced settings..."** before deploying.
+   - **Python Version**: Select **3.11** or **3.12** (recommended for fastest package wheel resolution).
+   - **Secrets**: Leave empty (the application does not require any environment variables, API keys, or external database credentials; all analytical processing is self-contained and in-memory).
+
+5. **Click "Deploy!"**:
+   - Streamlit Cloud will automatically clone your repository, install dependencies from `requirements.txt`, load `.streamlit/config.toml`, and launch `app.py`.
+   - Your live dashboard will be accessible via its public URL.
+
+---
+
 ## 🧪 Running the Automated Test Suite
 
-Run the full Pytest suite:
+Install development dependencies:
+```bash
+pip install -r requirements-dev.txt
+```
+
+Run the complete Pytest suite (65 passing tests):
 ```bash
 pytest -v
 ```
 
-Run code quality linting:
+Run code quality linting with Ruff:
 ```bash
 ruff check .
 ```
