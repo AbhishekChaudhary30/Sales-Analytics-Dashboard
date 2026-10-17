@@ -14,7 +14,7 @@ from src.ui.components import (
     render_section_heading,
     render_step_indicator,
 )
-from src.ui.layout import render_app_footer, render_app_header
+from src.ui.layout import render_app_footer, render_app_header, render_html
 from src.ui.navigation import (
     get_current_dataset,
     init_session_state,
@@ -32,51 +32,47 @@ render_app_header(dataset_name=ds_name, row_count=ds_rows)
 render_step_indicator(current_step=1)
 
 # Hero section
-st.markdown(
-    """
-    <div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%);
-                border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">
-        <h2 style="font-size: 1.75rem; margin-bottom: 0.75rem; color: #F9FAFB;">
-            Transform Raw Sales Data into High-Impact Commercial Intelligence
-        </h2>
-        <p style="color: #D1D5DB; font-size: 1.05rem; line-height: 1.6; max-width: 850px; margin-bottom: 1.5rem;">
-            Whether you operate an e-commerce storefront, retail chain, or B2B enterprise,
-            this workspace helps you uncover revenue drivers, customer dynamics, regional trends,
-            and margin erosion — without requiring proprietary data structures or fixed CSV templates.
-        </p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <span class="badge-pill badge-info">✓ Multi-Format (CSV, XLSX)</span>
-            <span class="badge-pill badge-info">✓ Schema Agnostic & Auto-Mapping</span>
-            <span class="badge-pill badge-info">✓ In-Memory & Privacy First</span>
-            <span class="badge-pill badge-info">✓ Interactive Plotly Reports</span>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
+hero_html = (
+    '<div style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(6, 182, 212, 0.08) 100%); '
+    'border: 1px solid rgba(139, 92, 246, 0.25); border-radius: 16px; padding: 2rem; margin-bottom: 2rem;">'
+    '<h2 style="font-size: 1.75rem; margin-bottom: 0.75rem; color: #F9FAFB;">'
+    'Transform Raw Sales Data into High-Impact Commercial Intelligence'
+    '</h2>'
+    '<p style="color: #D1D5DB; font-size: 1.05rem; line-height: 1.6; max-width: 850px; margin-bottom: 1.5rem;">'
+    'Whether you operate an e-commerce storefront, retail chain, or B2B enterprise, '
+    'this workspace helps you uncover revenue drivers, customer dynamics, regional trends, '
+    'and margin erosion — without requiring proprietary data structures or fixed CSV templates.'
+    '</p>'
+    '<div style="display: flex; gap: 1rem; flex-wrap: wrap;">'
+    '<span class="badge-pill badge-info">✓ Multi-Format (CSV, XLSX)</span>'
+    '<span class="badge-pill badge-info">✓ Schema Agnostic & Auto-Mapping</span>'
+    '<span class="badge-pill badge-info">✓ In-Memory & Privacy First</span>'
+    '<span class="badge-pill badge-info">✓ Interactive Plotly Reports</span>'
+    '</div>'
+    '</div>'
 )
+render_html(hero_html)
 
 # Call to Action Options
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
-    st.markdown(
-        """
-        <div class="metric-card" style="border-left: 4px solid #8B5CF6; min-height: 220px;">
-            <div class="metric-header">
-                <span class="metric-label">Quick Demonstration</span>
-                <span class="metric-icon">🚀</span>
-            </div>
-            <div style="font-size: 1.25rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.5rem;">
-                Try Sample Superstore Data
-            </div>
-            <p style="color: #9CA3AF; font-size: 0.875rem; line-height: 1.5; margin-bottom: 1.25rem;">
-                Explore all analytical features immediately using our bundled 150-transaction
-                retail dataset with categories, customers, profits, discounts, and regional coordinates.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    sample_card_html = (
+        '<div class="metric-card" style="border-left: 4px solid #8B5CF6; min-height: 220px;">'
+        '<div class="metric-header">'
+        '<span class="metric-label">Quick Demonstration</span>'
+        '<span class="metric-icon">🚀</span>'
+        '</div>'
+        '<div style="font-size: 1.25rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.5rem;">'
+        'Try Sample Superstore Data'
+        '</div>'
+        '<p style="color: #9CA3AF; font-size: 0.875rem; line-height: 1.5; margin-bottom: 1.25rem;">'
+        'Explore all analytical features immediately using our bundled 150-transaction '
+        'retail dataset with categories, customers, profits, discounts, and regional coordinates.'
+        '</p>'
+        '</div>'
     )
+    render_html(sample_card_html)
     if st.button("🚀 Load Sample Superstore Dataset", key="btn_load_sample", use_container_width=True, type="primary"):
         sample_path = os.path.join(os.path.dirname(__file__), "..", AppConfig.DEFAULT_SAMPLE_PATH)
         if os.path.exists(sample_path):
@@ -101,24 +97,22 @@ with col_left:
             st.error(f"Sample file not found at expected path: {sample_path}")
 
 with col_right:
-    st.markdown(
-        """
-        <div class="metric-card" style="border-left: 4px solid #06B6D4; min-height: 220px;">
-            <div class="metric-header">
-                <span class="metric-label">Custom Dataset</span>
-                <span class="metric-icon">📤</span>
-            </div>
-            <div style="font-size: 1.25rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.5rem;">
-                Upload Your Own Sales File
-            </div>
-            <p style="color: #9CA3AF; font-size: 0.875rem; line-height: 1.5; margin-bottom: 1.25rem;">
-                Bring your own sales, invoice, or CRM export in CSV or Excel format.
-                Our intelligent column mapping engine will detect your business fields automatically.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    custom_card_html = (
+        '<div class="metric-card" style="border-left: 4px solid #06B6D4; min-height: 220px;">'
+        '<div class="metric-header">'
+        '<span class="metric-label">Custom Dataset</span>'
+        '<span class="metric-icon">📤</span>'
+        '</div>'
+        '<div style="font-size: 1.25rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.5rem;">'
+        'Upload Your Own Sales File'
+        '</div>'
+        '<p style="color: #9CA3AF; font-size: 0.875rem; line-height: 1.5; margin-bottom: 1.25rem;">'
+        'Bring your own sales, invoice, or CRM export in CSV or Excel format. '
+        'Our intelligent column mapping engine will detect your business fields automatically.'
+        '</p>'
+        '</div>'
     )
+    render_html(custom_card_html)
     if st.button("📤 Upload Custom Dataset", key="btn_goto_upload", use_container_width=True):
         st.session_state["current_step"] = 2
         st.switch_page("pages/2_Upload_Data.py")

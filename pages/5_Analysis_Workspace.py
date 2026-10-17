@@ -38,7 +38,7 @@ from src.ui.components import (
     render_step_indicator,
 )
 from src.ui.filters import render_filter_sidebar
-from src.ui.layout import render_app_footer, render_app_header
+from src.ui.layout import render_app_footer, render_app_header, render_html
 from src.ui.navigation import (
     get_current_dataset,
     has_active_dataset,
@@ -285,21 +285,19 @@ with tabs[0]:
         ins_cols = st.columns(min(len(all_insights), 3))
         for idx, ins in enumerate(all_insights[:3]):
             with ins_cols[idx]:
-                st.markdown(
-                    f"""
-                    <div class="metric-card" style="min-height: 160px;">
-                        <div class="metric-header">
-                            <span class="metric-label">{ins.type.upper()}</span>
-                            <span class="metric-icon">{ins.icon}</span>
-                        </div>
-                        <strong style="color: #F9FAFB; font-size: 0.95rem;">{ins.title}</strong>
-                        <p style="color: #9CA3AF; font-size: 0.8rem; margin-top: 0.35rem; line-height: 1.4;">
-                            {ins.description}
-                        </p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
+                card_html = (
+                    '<div class="metric-card" style="min-height: 160px;">'
+                    '<div class="metric-header">'
+                    f'<span class="metric-label">{ins.type.upper()}</span>'
+                    f'<span class="metric-icon">{ins.icon}</span>'
+                    '</div>'
+                    f'<strong style="color: #F9FAFB; font-size: 0.95rem;">{ins.title}</strong>'
+                    f'<p style="color: #9CA3AF; font-size: 0.8rem; margin-top: 0.35rem; line-height: 1.4;">'
+                    f'{ins.description}'
+                    '</p>'
+                    '</div>'
                 )
+                render_html(card_html)
 
 # --------------------------------------------------------------------------
 # TAB 2: SALES TRENDS
@@ -706,22 +704,23 @@ with tabs[9]:
                 )
             )
 
-            st.markdown(
-                f"""
-                <div class="metric-card" style="border-left: 4px solid {status_color}; margin-bottom: 1.25rem;">
-                    <div class="metric-header">
-                        <span class="metric-label">{ins.type.upper()} &bull; OBSERVED: {ins.observed_value}</span>
-                        <span class="metric-icon">{ins.icon}</span>
-                    </div>
-                    <h4 style="color: #F9FAFB; margin: 0.25rem 0 0.5rem 0;">{ins.title}</h4>
-                    <p style="color: #D1D5DB; font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.5rem;">
-                        {ins.description}
-                    </p>
-                    {f'<div style="font-size: 0.8rem; color: #9CA3AF; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.4rem;"><strong>Strategic Takeaway:</strong> {ins.recommendation}</div>' if ins.recommendation else ''}
-                </div>
-                """,
-                unsafe_allow_html=True,
+            rec_html = (
+                f'<div style="font-size: 0.8rem; color: #9CA3AF; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.4rem;"><strong>Strategic Takeaway:</strong> {ins.recommendation}</div>'
+                if ins.recommendation
+                else ""
             )
+            insight_card_html = (
+                f'<div class="metric-card" style="border-left: 4px solid {status_color}; margin-bottom: 1.25rem;">'
+                '<div class="metric-header">'
+                f'<span class="metric-label">{ins.type.upper()} &bull; OBSERVED: {ins.observed_value}</span>'
+                f'<span class="metric-icon">{ins.icon}</span>'
+                '</div>'
+                f'<h4 style="color: #F9FAFB; margin: 0.25rem 0 0.5rem 0;">{ins.title}</h4>'
+                f'<p style="color: #D1D5DB; font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.5rem;">{ins.description}</p>'
+                f'{rec_html}'
+                '</div>'
+            )
+            render_html(insight_card_html)
 
 # Bottom Navigation
 render_step_navigation(

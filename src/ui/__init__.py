@@ -12,6 +12,7 @@ from src.ui.layout import (
     inject_custom_css,
     render_app_footer,
     render_app_header,
+    render_html,
 )
 from src.ui.navigation import (
     get_current_dataset,
@@ -29,6 +30,7 @@ __all__ = [
     "render_app_header",
     "render_empty_state",
     "render_filter_sidebar",
+    "render_html",
     "render_metric_card",
     "render_quality_warnings_box",
     "render_section_heading",

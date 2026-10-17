@@ -11,7 +11,7 @@ from src.ui.components import (
     render_section_heading,
     render_step_indicator,
 )
-from src.ui.layout import render_app_footer, render_app_header
+from src.ui.layout import render_app_footer, render_app_header, render_html
 from src.ui.navigation import (
     get_current_dataset,
     has_active_dataset,
@@ -60,18 +60,16 @@ if target_df.empty:
     render_app_footer()
     st.stop()
 
-st.markdown(
-    f"""
-    <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.25);
-                border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
-        <span class="badge-pill badge-info">Active Filter Scope</span>
-        <div style="font-size: 0.95rem; font-weight: 600; color: #F9FAFB; margin-top: 4px;">
-            Exporting {len(target_df):,} transaction records (Filtered working copy)
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
+scope_html = (
+    '<div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.25); '
+    'border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">'
+    '<span class="badge-pill badge-info">Active Filter Scope</span>'
+    '<div style="font-size: 0.95rem; font-weight: 600; color: #F9FAFB; margin-top: 4px;">'
+    f'Exporting {len(target_df):,} transaction records (Filtered working copy)'
+    '</div>'
+    '</div>'
 )
+render_html(scope_html)
 
 st.markdown("#### Available Commercial Exports")
 
@@ -79,23 +77,21 @@ c1, c2 = st.columns(2)
 
 with c1:
     # 1. Standardized Filtered CSV
-    st.markdown(
-        """
-        <div class="metric-card" style="border-left: 4px solid #8B5CF6; min-height: 180px;">
-            <div class="metric-header">
-                <span class="metric-label">Processed Dataset</span>
-                <span class="metric-icon">📥</span>
-            </div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">
-                Filtered Transactions CSV
-            </div>
-            <p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
-                Full line-item transaction dataset reflecting active date, category, and regional filters.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    card1_html = (
+        '<div class="metric-card" style="border-left: 4px solid #8B5CF6; min-height: 180px;">'
+        '<div class="metric-header">'
+        '<span class="metric-label">Processed Dataset</span>'
+        '<span class="metric-icon">📥</span>'
+        '</div>'
+        '<div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">'
+        'Filtered Transactions CSV'
+        '</div>'
+        '<p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">'
+        'Full line-item transaction dataset reflecting active date, category, and regional filters.'
+        '</p>'
+        '</div>'
     )
+    render_html(card1_html)
     csv_bytes = target_df.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="Download Filtered CSV",
@@ -108,23 +104,21 @@ with c1:
 
 with c2:
     # 2. Executive KPI Summary CSV
-    st.markdown(
-        """
-        <div class="metric-card" style="border-left: 4px solid #06B6D4; min-height: 180px;">
-            <div class="metric-header">
-                <span class="metric-label">Executive Metrics</span>
-                <span class="metric-icon">📊</span>
-            </div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">
-                Executive KPI Summary Table
-            </div>
-            <p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
-                Consolidated table of high-level financial indicators, unit sales, margins, and definitions.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    card2_html = (
+        '<div class="metric-card" style="border-left: 4px solid #06B6D4; min-height: 180px;">'
+        '<div class="metric-header">'
+        '<span class="metric-label">Executive Metrics</span>'
+        '<span class="metric-icon">📊</span>'
+        '</div>'
+        '<div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">'
+        'Executive KPI Summary Table'
+        '</div>'
+        '<p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">'
+        'Consolidated table of high-level financial indicators, unit sales, margins, and definitions.'
+        '</p>'
+        '</div>'
     )
+    render_html(card2_html)
     kpis = compute_all_kpis(target_df)
     kpi_records = [
         {
@@ -146,28 +140,26 @@ with c2:
         use_container_width=True,
     )
 
-st.markdown("<br>", unsafe_allow_html=True)
+render_html("<div style='height: 0.75rem;'></div>")
 c3, c4 = st.columns(2)
 
 with c3:
     # 3. Category Rollup Summary
-    st.markdown(
-        """
-        <div class="metric-card" style="border-left: 4px solid #10B981; min-height: 180px;">
-            <div class="metric-header">
-                <span class="metric-label">Assortment Rollup</span>
-                <span class="metric-icon">📦</span>
-            </div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">
-                Category Performance Summary
-            </div>
-            <p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
-                Aggregated category revenues, net margins, revenue shares, and total unit counts.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    card3_html = (
+        '<div class="metric-card" style="border-left: 4px solid #10B981; min-height: 180px;">'
+        '<div class="metric-header">'
+        '<span class="metric-label">Assortment Rollup</span>'
+        '<span class="metric-icon">📦</span>'
+        '</div>'
+        '<div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">'
+        'Category Performance Summary'
+        '</div>'
+        '<p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">'
+        'Aggregated category revenues, net margins, revenue shares, and total unit counts.'
+        '</p>'
+        '</div>'
     )
+    render_html(card3_html)
     if "category" in target_df.columns:
         cat_summary_df = analyze_categories(target_df)
         cat_csv = cat_summary_df.to_csv(index=False).encode("utf-8")
@@ -183,23 +175,21 @@ with c3:
 
 with c4:
     # 4. Automated Insights Briefing (Markdown Report)
-    st.markdown(
-        """
-        <div class="metric-card" style="border-left: 4px solid #F59E0B; min-height: 180px;">
-            <div class="metric-header">
-                <span class="metric-label">Intelligence Brief</span>
-                <span class="metric-icon">💡</span>
-            </div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">
-                Automated Insights Executive Brief
-            </div>
-            <p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">
-                Structured markdown briefing documenting all quantified commercial observations and recommendations.
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    card4_html = (
+        '<div class="metric-card" style="border-left: 4px solid #F59E0B; min-height: 180px;">'
+        '<div class="metric-header">'
+        '<span class="metric-label">Intelligence Brief</span>'
+        '<span class="metric-icon">💡</span>'
+        '</div>'
+        '<div style="font-size: 1.15rem; font-weight: 700; color: #F9FAFB; margin-bottom: 0.35rem;">'
+        'Automated Insights Executive Brief'
+        '</div>'
+        '<p style="color: #9CA3AF; font-size: 0.8rem; line-height: 1.4; margin-bottom: 1rem;">'
+        'Structured markdown briefing documenting all quantified commercial observations and recommendations.'
+        '</p>'
+        '</div>'
     )
+    render_html(card4_html)
     insights = generate_comprehensive_insights(target_df)
     report_lines = [
         "# Sales Analytics Dashboard - Executive Intelligence Brief\n",

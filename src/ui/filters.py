@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from src.analytics.filters import FilterResult, FilterState, apply_filters
+from src.ui.layout import render_html
 
 
 def render_filter_sidebar(df: pd.DataFrame) -> Tuple[FilterState, FilterResult]:
@@ -107,14 +108,14 @@ def render_filter_sidebar(df: pd.DataFrame) -> Tuple[FilterState, FilterResult]:
     filter_result = apply_filters(df, filter_state)
 
     # Telemetry banner in sidebar
-    st.sidebar.markdown(
-        f"""
-        <div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 8px; padding: 0.6rem; margin-top: 0.75rem; font-size: 0.8rem; color: #9CA3AF;">
-            Active Records: <strong>{filter_result.total_remaining:,}</strong> / {filter_result.total_original:,} ({filter_result.retention_percentage:.1f}%)
-        </div>
-        """,
-        unsafe_allow_html=True,
+    banner_html = (
+        '<div style="background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); '
+        'border-radius: 8px; padding: 0.6rem; margin-top: 0.75rem; font-size: 0.8rem; color: #9CA3AF;">'
+        f'Active Records: <strong>{filter_result.total_remaining:,}</strong> / {filter_result.total_original:,} '
+        f'({filter_result.retention_percentage:.1f}%)'
+        '</div>'
     )
+    with st.sidebar:
+        render_html(banner_html)
 
     return filter_state, filter_result

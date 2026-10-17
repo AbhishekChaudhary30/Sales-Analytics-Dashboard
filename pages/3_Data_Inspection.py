@@ -11,7 +11,7 @@ from src.ui.components import (
     render_section_heading,
     render_step_indicator,
 )
-from src.ui.layout import render_app_footer, render_app_header
+from src.ui.layout import render_app_footer, render_app_header, render_html
 from src.ui.navigation import (
     get_current_dataset,
     has_active_dataset,
@@ -95,7 +95,7 @@ with c4:
     )
 
 if profile and profile.quality_warnings:
-    st.markdown("<br>", unsafe_allow_html=True)
+    render_html("<div style='height: 0.75rem;'></div>")
     render_quality_warnings_box(profile.quality_warnings)
 
 # Tabbed detailed exploration

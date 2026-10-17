@@ -13,7 +13,7 @@ from src.ui.components import (
     render_section_heading,
     render_step_indicator,
 )
-from src.ui.layout import render_app_footer, render_app_header
+from src.ui.layout import render_app_footer, render_app_header, render_html
 from src.ui.navigation import (
     get_current_dataset,
     has_active_dataset,
@@ -39,21 +39,19 @@ render_section_heading(
 )
 
 # Upload container
-st.markdown(
-    """
-    <div style="background: rgba(17, 24, 39, 0.4); border: 1px dashed rgba(139, 92, 246, 0.35);
-                border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">
-        <p style="color: #9CA3AF; font-size: 0.875rem; margin: 0 0 0.5rem 0;">
-            Supported formats: <strong>CSV (.csv)</strong>, <strong>Excel (.xlsx, .xls)</strong>.
-            Maximum file size: <strong>50 MB</strong>.
-        </p>
-        <p style="color: #6B7280; font-size: 0.8rem; margin: 0;">
-            🔒 All data is processed strictly in-memory within your local session and is never persisted to disk or sent to external servers.
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True,
+upload_info_html = (
+    '<div style="background: rgba(17, 24, 39, 0.4); border: 1px dashed rgba(139, 92, 246, 0.35); '
+    'border-radius: 14px; padding: 1.5rem; margin-bottom: 1.5rem;">'
+    '<p style="color: #9CA3AF; font-size: 0.875rem; margin: 0 0 0.5rem 0;">'
+    'Supported formats: <strong>CSV (.csv)</strong>, <strong>Excel (.xlsx, .xls)</strong>. '
+    'Maximum file size: <strong>50 MB</strong>.'
+    '</p>'
+    '<p style="color: #6B7280; font-size: 0.8rem; margin: 0;">'
+    '🔒 All data is processed strictly in-memory within your local session and is never persisted to disk or sent to external servers.'
+    '</p>'
+    '</div>'
 )
+render_html(upload_info_html)
 
 uploaded_file = st.file_uploader(
     "Choose a sales data file",
@@ -96,25 +94,23 @@ active_ds = get_current_dataset()
 profile = st.session_state.get("dataset_profile")
 
 if active_ds is not None and profile is not None:
-    st.markdown(
-        f"""
-        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3);
-                    border-radius: 12px; padding: 1.25rem; margin-top: 1rem; margin-bottom: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <span class="badge-pill badge-success">✓ File Ingested Successfully</span>
-                    <h4 style="margin: 0.5rem 0 0.25rem 0; color: #F9FAFB;">{active_ds.file_name}</h4>
-                    <span style="font-size: 0.85rem; color: #9CA3AF;">
-                        Format: {active_ds.file_format.upper()} &nbsp;|&nbsp;
-                        Encoding: {active_ds.encoding_used or 'Default'} &nbsp;|&nbsp;
-                        Size: {format_filesize(active_ds.file_size_bytes)}
-                    </span>
-                </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    success_banner_html = (
+        '<div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); '
+        'border-radius: 12px; padding: 1.25rem; margin-top: 1rem; margin-bottom: 1.5rem;">'
+        '<div style="display: flex; justify-content: space-between; align-items: center;">'
+        '<div>'
+        '<span class="badge-pill badge-success">✓ File Ingested Successfully</span>'
+        f'<h4 style="margin: 0.5rem 0 0.25rem 0; color: #F9FAFB;">{active_ds.file_name}</h4>'
+        f'<span style="font-size: 0.85rem; color: #9CA3AF;">'
+        f'Format: {active_ds.file_format.upper()} &nbsp;|&nbsp; '
+        f'Encoding: {active_ds.encoding_used or "Default"} &nbsp;|&nbsp; '
+        f'Size: {format_filesize(active_ds.file_size_bytes)}'
+        '</span>'
+        '</div>'
+        '</div>'
+        '</div>'
     )
+    render_html(success_banner_html)
 
     c1, c2, c3, c4 = st.columns(4)
     with c1:

@@ -7,7 +7,7 @@ and maintains sidebar status telemetry.
 import streamlit as st
 
 from src.config import AppConfig
-from src.ui.layout import inject_custom_css
+from src.ui.layout import inject_custom_css, render_html
 from src.ui.navigation import get_current_dataset, init_session_state
 
 # Configure Streamlit page parameters
@@ -38,51 +38,45 @@ pg = st.navigation(pages)
 
 # Render Sidebar metadata
 with st.sidebar:
-    st.markdown(
-        """
-        <div style="padding: 0.5rem 0 1rem 0;">
-            <div style="font-size: 1.15rem; font-weight: 800; color: #F9FAFB; display: flex; align-items: center; gap: 8px;">
-                📈 <span>Sales Analytics</span>
-            </div>
-            <div style="font-size: 0.75rem; color: #8B5CF6; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
-                Portfolio Edition v1.0.0
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    brand_sidebar_html = (
+        '<div style="padding: 0.5rem 0 1rem 0;">'
+        '<div style="font-size: 1.15rem; font-weight: 800; color: #F9FAFB; display: flex; align-items: center; gap: 8px;">'
+        '📈 <span>Sales Analytics</span>'
+        '</div>'
+        '<div style="font-size: 0.75rem; color: #8B5CF6; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">'
+        'Portfolio Edition v1.0.0'
+        '</div>'
+        '</div>'
     )
+    render_html(brand_sidebar_html)
 
     # Active dataset indicator in sidebar
     active_ds = get_current_dataset()
     if active_ds is not None:
-        st.markdown(
-            f"""
-            <div style="background: rgba(17, 24, 39, 0.8); border: 1px solid rgba(16, 185, 129, 0.3);
-                        border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem;">
-                <span class="badge-pill badge-success" style="font-size: 0.65rem;">Active Dataset</span>
-                <div style="font-size: 0.825rem; font-weight: 600; color: #F9FAFB; margin-top: 4px; word-break: break-all;">
-                    {active_ds.file_name}
-                </div>
-                <div style="font-size: 0.75rem; color: #9CA3AF;">
-                    {active_ds.total_rows:,} rows &bull; {active_ds.total_cols} cols
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        ds_status_html = (
+            '<div style="background: rgba(17, 24, 39, 0.8); border: 1px solid rgba(16, 185, 129, 0.3); '
+            'border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem;">'
+            '<span class="badge-pill badge-success" style="font-size: 0.65rem;">Active Dataset</span>'
+            f'<div style="font-size: 0.825rem; font-weight: 600; color: #F9FAFB; margin-top: 4px; word-break: break-all;">'
+            f'{active_ds.file_name}'
+            '</div>'
+            f'<div style="font-size: 0.75rem; color: #9CA3AF;">'
+            f'{active_ds.total_rows:,} rows &bull; {active_ds.total_cols} cols'
+            '</div>'
+            '</div>'
         )
+        render_html(ds_status_html)
     else:
-        st.markdown(
-            """
-            <div style="background: rgba(17, 24, 39, 0.5); border: 1px solid rgba(255, 255, 255, 0.08);
-                        border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem;">
-                <span class="badge-pill badge-warning" style="font-size: 0.65rem;">No Data</span>
-                <div style="font-size: 0.75rem; color: #9CA3AF; margin-top: 4px;">
-                    Select sample or upload CSV/XLSX
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        no_ds_html = (
+            '<div style="background: rgba(17, 24, 39, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); '
+            'border-radius: 10px; padding: 0.75rem; margin-bottom: 1rem;">'
+            '<span class="badge-pill badge-warning" style="font-size: 0.65rem;">No Data</span>'
+            '<div style="font-size: 0.75rem; color: #9CA3AF; margin-top: 4px;">'
+            'Select sample or upload CSV/XLSX'
+            '</div>'
+            '</div>'
         )
+        render_html(no_ds_html)
 
 # Execute active page
 pg.run()
